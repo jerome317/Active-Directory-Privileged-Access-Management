@@ -62,11 +62,35 @@ $LogPathName = Join-Path -Path $LogPath -ChildPath "$($MyInvocation.MyCommand.Na
 Start-Transcript $LogPathName -Append
 
 Write-Verbose "$(Get-Date): Start Log..."
+####################
+# Script Variables #
+####################
+#Email Settings
+  $SMTPServer = "contoso-com.mail.protection.outlook.com" #DirectSend or your mail relay server.
+  $FromEmail = "IT@contoso.com"
 
+#Group Information
+#NOTE: You can create a CSV for this, I just decided to specify each group since there is only 3.
+  $hashArr = @(
+    @{
+    AADSecurityGroupObjectID = 'OBJECT-ID-OF-YOUR-AAD-GROUP'  #Object ID of your Azure AD Group
+    NestedADSecurityGroupName = 'Automated Domain Admins'     #The name you use or called your destination / local AD security groups
+    ElevatedAdminGroupName = 'Domain Admins'                  #This is just use for the email body
+    },
+    @{
+    AADSecurityGroupObjectID = 'OBJECT-ID-OF-YOUR-AAD-GROUP'
+    NestedADSecurityGroupName = 'Automated Enterprise Admins'
+    ElevatedAdminGroupName = 'Enterprise Admins'
+    },
+    @{
+    AADSecurityGroupObjectID = 'OBJECT-ID-OF-YOUR-AAD-GROUP'
+    NestedADSecurityGroupName = 'Automated Schema Admins'
+    ElevatedAdminGroupName = 'Schema Admins'
+    }
+)
 ############
 # Function #
 ############
-
 Function Set-AdminGroup
 {
     param($AADGroup,$members,$OnPremGroup,$AdminGroupName)
@@ -78,8 +102,6 @@ Function Set-AdminGroup
     $UserSamAccountName = (Get-ADUser -filter {DisplayName -eq $UserDisplayName}).SamAccountName
     $UserEmail = $member.UserPrincipalName
     $ManagerEmail = Get-AzureADUserManager -ObjectId $member.ObjectId | Select-Object -ExpandProperty UserPrincipalName
-    $SMTPServer = "contoso-com.mail.protection.outlook.com" #DirectSend or your mail relay server.
-    $FromEmail = "IT@contoso.com"
     $EmailSubject = "You have been added to $OnPremGroup"
       #This will add the approved request to the Automated Admin security group
       Add-ADGroupMember -identity $OnPremGroup -members $UserSamAccountName
@@ -105,29 +127,6 @@ Function Set-AdminGroup
 
     }
 }
-
-
-#########
-# NOTE: # You can create a CSV for this, then do a import, foreach... I just decided to specify each group since there is only 3.
-#########
-
-$hashArr = @(
-  @{
-  AADSecurityGroupObjectID = 'OBJECT-ID-OF-YOUR-AAD-GROUP'  #Object ID of your Azure AD Group
-  NestedADSecurityGroupName = 'Automated Domain Admins'     #The name you use or called your destination / local AD security groups
-  ElevatedAdminGroupName = 'Domain Admins'                  #This is just use for the email body
-  },
-  @{
-  AADSecurityGroupObjectID = 'OBJECT-ID-OF-YOUR-AAD-GROUP'
-  NestedADSecurityGroupName = 'Automated Enterprise Admins'
-  ElevatedAdminGroupName = 'Enterprise Admins'
-  },
-  @{
-  AADSecurityGroupObjectID = 'OBJECT-ID-OF-YOUR-AAD-GROUP'
-  NestedADSecurityGroupName = 'Automated Schema Admins'
-  ElevatedAdminGroupName = 'Schema Admins'
-  }
-)
 ###############
 # Script Body #
 ###############
@@ -143,4 +142,4 @@ foreach ($group in $hashArr){
   Set-AdminGroup -AADGroup $AADGroup -members $members -OnPremGroup $OnPremGroup -AdminGroupName $AdminGroupName
 }
 
-Stop-Transcript #stop the log
+Stop-Transcript #stop the logging

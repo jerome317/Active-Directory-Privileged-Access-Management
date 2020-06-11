@@ -45,10 +45,18 @@ $LogPathName = Join-Path -Path $LogPath -ChildPath "$($MyInvocation.MyCommand.Na
 Start-Transcript $LogPathName -Append
 
 Write-Verbose "$(Get-Date): Start Log..."
-
-#Clear out the OnPrem group as a policy for PAM / Just In Time access (temporary access only for best practices IT Security)
+####################
+# Script Variables #
+####################
+#Email Settings
+  $SMTPServer = "contoso-com.mail.protection.outlook.com" #DirectSend or your mail relay server.
+  $FromEmail = "IT@contoso.com"
 # If you used the CSV to add, you can reference it hear a well and use the same CSV source, since we only have 3, I've specificed them here instead of creating another file.
 $NestedADSecurityGroupNames = "Automated Enterprise Admins", "Automated Schema Admins", "Automated Domain Admins"
+
+###############
+# Script Body #
+###############
 foreach ($OnPremGroup in $NestedADSecurityGroupNames) {
 
     $members = Get-ADGroupMember $OnPremGroup
@@ -57,8 +65,6 @@ foreach ($OnPremGroup in $NestedADSecurityGroupNames) {
         
         $DisplayName = $member.Name
         $UserEmail = $member.UserPrincipalName
-        $SMTPServer = "contoso-com.mail.protection.outlook.com" #DirectSend or your mail relay server.
-        $FromEmail = "IT@contoso.com"
         $EmailSubject = "You have been removed from $OnPremGroup"
         
         Remove-ADGroupMember $OnPremGroup -Members $member -Confirm:$false 

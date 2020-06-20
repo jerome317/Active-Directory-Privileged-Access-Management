@@ -43,7 +43,7 @@ HOT TIP: Use Credential Manager to store Service Account credentials
     1. Install this module:
     Install-Module -Name CredentialManager
     2. Then run the command below:
-    $cred = $Host.UI.PromptForCredential("OFFICE 365 Credentials",$msg,"$env:username@tangoe.com",$env:userdomain)
+    $cred = $Host.UI.PromptForCredential("OFFICE 365 Credentials",$msg,"$env:username@contso.com",$env:userdomain)
     New-StoredCredential -Target "O365 for Scripting" -UserName $cred.UserName -Password $cred.GetNetworkCredential().Password -Comment 'I stored it here for scripting' -Persist Enterprise
     Clear
 #>

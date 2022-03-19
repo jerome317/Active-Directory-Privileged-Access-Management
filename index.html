@@ -1,0 +1,720 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Automating Temporary Access Approval with SharePoint and Power Automate</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	text-indent: -1.7em;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+}
+
+.simple-table-header {
+	background: rgb(247, 246, 243);
+	color: black;
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(55, 53, 47, 1);
+}
+.highlight-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.highlight-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.highlight-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.highlight-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.highlight-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.highlight-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.highlight-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.highlight-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.highlight-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.highlight-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.highlight-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.highlight-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.highlight-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.highlight-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.highlight-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.block-color-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.block-color-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.block-color-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.block-color-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.block-color-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.block-color-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.block-color-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.block-color-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.block-color-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.block-color-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.block-color-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.block-color-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.select-value-color-pink { background-color: rgba(245, 224, 233, 1); }
+.select-value-color-purple { background-color: rgba(232, 222, 238, 1); }
+.select-value-color-green { background-color: rgba(219, 237, 219, 1); }
+.select-value-color-gray { background-color: rgba(227, 226, 224, 1); }
+.select-value-color-opaquegray { background-color: rgba(255, 255, 255, 0.0375); }
+.select-value-color-orange { background-color: rgba(250, 222, 201, 1); }
+.select-value-color-brown { background-color: rgba(238, 224, 218, 1); }
+.select-value-color-red { background-color: rgba(255, 226, 221, 1); }
+.select-value-color-yellow { background-color: rgba(253, 236, 200, 1); }
+.select-value-color-blue { background-color: rgba(211, 229, 239, 1); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="30002654-8118-49dd-91fc-5d2378ee3b82" class="page sans"><header><h1 class="page-title">Automating Temporary Access Approval with SharePoint and Power Automate</h1></header><div class="page-body"><p id="9875c15c-1455-4fd9-9998-4005bbe293a1" class="">
+</p><figure id="71cd4ffc-1c2c-4613-bb82-33541fc8425e" class="image"><a href="Automating%2071cd4/AD_Super_Admin_(3)_(2).png"><img style="width:1315px" src="Automating%2071cd4/AD_Super_Admin_(3)_(2).png"/></a><figcaption>Cover Photo</figcaption></figure><p id="c6e1a6e4-8e1f-42ca-a901-42d0845a747f" class="">Did you get an IT audit and was told you have too many super users in your Active Directory domain? Or perhaps you have read a recent breach and they were talking about limiting admin access when not in use?</p><p id="47d83ba1-444f-49a9-8211-0287c30e8046" class="">There are many solutions available to manage high-privilege accounts like Microsoft Identity Manager (MIM), for example. Commercial tools are good solutions but implementing them can be complicated and will incur some costs. </p><p id="35f3d485-539e-4338-8e54-391322e6662c" class="">In this article, you&#x27;re going to learn a quick way of managing high-privilege accounts using tools you probably already have in your environment. It will allow you and your peers to practice privileged account management (PAM) on the cheap to get the job done.</p><p id="0dc338ed-365b-468c-bdab-4aeec2dcff55" class="">This solution the guide will cover will manage the requirement of <em>temporary</em> <em>elevated access</em> of various resources controlled by AD groups. For example, perhaps an engineer needs the same privileges that a member of the <em>Domain Admins</em> group needs. You could just add that engineer&#x27;s account to the <em>Domain Admins</em> group which solves the problem but the engineer only needs those rights temporarily.</p><p id="eac5c2b6-392a-434b-9ae9-7da8d2bdd919" class="">You might think you&#x27;ll remember to remove that account but you probably won&#x27;t. You need an automated way to not only remove privileges from that account but also to request and approve that request in the first place. That&#x27;s the problem you&#x27;re going to learn how to solve in this guide.</p><h2 id="7a22de12-c3fa-4bf9-ad30-65191ffb4b01" class="">Prerequisites</h2><p id="40e1f18f-0451-4d16-986a-a87bf20d4fbe" class="">This article is going to be a walkthrough. To follow along the guide, you will need the following prerequisites.</p><ul id="7596ecfb-c050-43fc-867b-2955066977a7" class="bulleted-list"><li style="list-style-type:disc">A Microsoft/Office 365 E1 and above subscription with the following:<ul id="ad106964-8ce2-45be-a3f4-810acd3bf1e2" class="bulleted-list"><li style="list-style-type:circle">SharePoint Online (SPO)</li></ul><ul id="688db6b9-afde-4d7d-a7cc-95d70f174ae4" class="bulleted-list"><li style="list-style-type:circle">Microsoft Power Automate (aka Flow)</li></ul></li></ul><ul id="fb245e7b-77e0-4b51-ab5d-0d0071673d42" class="bulleted-list"><li style="list-style-type:disc">Active Directory (AD)</li></ul><ul id="67f24024-5570-4e32-ba2e-9bdee47cff4d" class="bulleted-list"><li style="list-style-type:disc">Azure AD syncing with your on-prem AD environment</li></ul><ul id="cf4b6b40-380b-48ea-bdda-1bbe6946c070" class="bulleted-list"><li style="list-style-type:disc">The <a href="https://www.powershellgallery.com/packages/AzureAD/2.0.2.76">AzureAD</a> PowerShell module</li></ul><ul id="4deb46f6-d942-4c51-a7b1-3b50b78a48bf" class="bulleted-list"><li style="list-style-type:disc"><a href="https://docs.microsoft.com/en-us/windows-server/security/group-managed-service-accounts/group-managed-service-accounts-overview">A group managed service account (</a><a href="https://docs.microsoft.com/en-us/windows-server/security/group-managed-service-accounts/group-managed-service-accounts-overview">gMSA</a><a href="https://docs.microsoft.com/en-us/windows-server/security/group-managed-service-accounts/group-managed-service-accounts-overview">)</a> - This article will assume you have a gMSA created called <em>gMSA_PAM.</em></li></ul><ul id="7d208e41-239e-4592-90d8-6d9cd643ac54" class="bulleted-list"><li style="list-style-type:disc">The <a href="https://adamtheautomator.com/install-powershell-active-directory-module/">RSAT-AD-PowerShell (ActiveDirectory</a>) PowerShell module</li></ul><ul id="c646b270-97bf-4688-b57d-f1571002f29d" class="bulleted-list"><li style="list-style-type:disc">An AD-joined Windows 10 or Windows Server 2019 machine</li></ul><ul id="da6fda28-0a86-482d-96ca-fd752d10a878" class="bulleted-list"><li style="list-style-type:disc"><a href="https://github.com/jerome317/Active-Directory-Privileged-Access-Management/archive/master.zip">All scripts for this tutorial</a> downloaded and extracted. This guide will assume that you saved them in <em>C:\Temp.</em></li></ul><h2 id="70ea2c83-c590-4fc2-9864-2924e14b9bea" class="">Project Overview</h2><p id="58b9c221-702e-401d-bf73-c084c1a6398a" class="">This guide is going to be a walkthrough to build an end-to-end, temporary access approval workflow using SharePoint as the self-service form, PowerAutomate to automate the approval process, and Azure AD to authorize the change. </p><p id="499ed97d-3f8d-4ed3-9b9d-bb18ede7198c" class="">If you need more specifics, refer to the below steps and flowchart for a workflow representation of how this solution is built.</p><ol type="1" id="93e75155-bbbd-49c2-9d62-69859d0c5fa4" class="numbered-list" start="1"><li>A user submits their request by filling out a SharePoint List.</li></ol><ol type="1" id="38df33cc-6094-4c00-80fa-727b40baef3b" class="numbered-list" start="2"><li>Power Automate will be triggered from this submission and email all defined approvers containing the request details.</li></ol><ol type="1" id="cf0b63c4-fbfb-4453-a183-38ee96b9f330" class="numbered-list" start="3"><li>The requestor then gets notified of the status of their request once approved or denied.</li></ol><ol type="1" id="3827a478-709d-4bd2-a402-bf8320013f55" class="numbered-list" start="4"><li>Once approved, the user is then added to a temporary Active Directory security group that is nested underneath a group with the appropriate privileges.</li></ol><ol type="1" id="d41524d5-984f-47ce-a32a-f34f51969174" class="numbered-list" start="5"><li>A scheduled PowerShell script that runs every five minutes adds the user to a nested group, effectively elevating their access based on the requested role.</li></ol><ol type="1" id="27d9314a-414f-4a2d-990c-d81e144fb240" class="numbered-list" start="6"><li>PowerShell sends an email to the user and their manager confirming the group membership addition.</li></ol><ol type="1" id="84573190-c597-4ea0-ba0e-38d0ee025e40" class="numbered-list" start="7"><li>After a scheduled time, a separate PowerShell script removes the user account from the nested group essentially revoking their elevated access.</li></ol><ol type="1" id="8273dde0-ff6c-42a7-8284-4a96f4c577f8" class="numbered-list" start="8"><li>Lastly, the script notifies the end user that their elevated access has been revoked.</li></ol><p id="4afce028-b141-490c-ae7e-ef5c80c59103" class="">Below you can sea visual representation of the steps above. </p><figure id="6b9f50a0-77cc-4df1-a669-af445bf76e25" class="image"><a href="Automating%2071cd4/Privilege_Access_Management_Flow_(7).png"><img style="width:781px" src="Automating%2071cd4/Privilege_Access_Management_Flow_(7).png"/></a><figcaption>Automated temporary, Active Directory access</figcaption></figure><h2 id="ba057027-e206-4ef1-b6ba-a93145fead29" class="">Preparing the Active Directory Groups</h2><p id="2e7f0dca-796c-4465-9ff4-656a2230b7dd" class="">Before you begin building this solution, you need to first set up a few things in Azure AD. First, you&#x27;ll need to create a couple of Azure AD security groups that represent the level of access you&#x27;d like to give to a requestor. Think of these groups as holding the same privileges as the actual AD groups like <em>Domain Admins</em>. Instead, you&#x27;ll create <em>Automated Domain Admins</em> and so on.</p><p id="da9ca70e-a068-48e4-8008-fc4c219cad81" class="">These &quot;placeholder&quot; groups will exist to temporarily place accounts that will inherit all privileges of their parent groups like <em>Domain Admins</em>, <em>Enterprise Admins</em>, etc.</p><p id="2ed9700a-351d-4bcb-816f-4d8c1ad4bfc3" class="">Go ahead and create three AD security groups representing whatever default group privileges you&#x27;d like requestors to have access to. In this guide, you&#x27;re creating placeholders groups for <em>Domain Admins</em>, <em>Enterprise Admins</em> and <em>Schema Admins</em>. You are free to create these groups in any way you&#x27;d like but below you&#x27;ll find a PowerShell snippet that will expedite this process.</p><figure class="block-color-gray_background callout" style="white-space:pre-wrap;display:flex" id="2572ab81-add2-45a2-a409-e8860a970538"><div style="font-size:1.5em"><span class="icon">💡</span></div><div style="width:100%"><em>Be sure to replace DC=contoso,DC=com with your domain.</em></div></figure><pre id="e88e6577-536d-48bf-ae73-158b098fbd9f" class="code"><code>#Define the OU Path of the groups, where you want them saved
+$path =  &quot;OU=MySecurityGroups,DC=contoso,DC=com&quot;
+
+#Group which need to be created 
+$groupNames = &quot;Automated Domain Admins&quot;,&quot;Automated Enterprise Admins&quot;,&quot;Automated Schema Admins&quot; 
+
+#Lets use ForEach to create the groups 
+foreach ($name in $groupNames) { 
+  New-ADGroup -Path $path -Name $name -GroupCategory Security -GroupScope Global -Description &quot;Used for elevating access temporarily for AD roles&quot;
+}</code></pre><p id="ede99b25-49ee-4651-a8d6-f9d81770582a" class="">Once you have the groups created, ensure the gMSA account you have created for this guide (defined in the prerequisites section) has delegated access or Manager to the groups that were just created. If not, the automation will not have access to add or remove accounts from the groups. You can see a screenshot of what your gMSA should look like below.</p><figure id="a940d5d1-b89f-4e67-aa66-88e52bdce3f6" class="image"><a href="Automating%2071cd4/RemoteDesktopManagerFree_OpEsSNVrkH.png"><img style="width:409px" src="Automating%2071cd4/RemoteDesktopManagerFree_OpEsSNVrkH.png"/></a><figcaption>Managed By AD Object</figcaption></figure><h2 id="8629b510-7667-4f10-9439-999b1d7e51b7" class="">Preparing Azure AD</h2><p id="5bf34bf6-e99e-4a20-9b27-450b48f1b069" class="">Once you have all of the placeholder groups created, it&#x27;s time to prepare your Azure AD environment.</p><h3 id="ef30fdcc-c228-474d-b4c6-f77cab3689fa" class="">Creating an Azure AD User for Power Automate</h3><p id="78a0876a-c6df-49ea-adf5-810cd9ad5639" class="">Power Automate needs a way to authenticate to Azure AD to manage the placeholder group memberships and the SharePoint site. You need to create an Azure AD user for Power Automate. To do that, use the below PowerShell code snippet.</p><p id="d13803ec-89e0-444f-949a-054e5ad2e41f" class="">The code snippet creates an Azure AD user called <em>Service Account - PAM</em> with an email address/UPN of <a href="mailto:ServiceAccount-PAM@contoso.onmicrosoft.com">ServiceAccount-PAM@contoso.onmicrosoft.com</a>.</p><pre id="44e93e7a-bdd2-4bc6-9b29-a3622ac6eb9e" class="code"><code>#Prompt for your Azure AD / Office 365 Admin credentials, then connect to AzureAD
+$Creds = Get-Credential
+Connect-AzureAD -Credential $Creds
+#Set the password for the M365 Service Account
+$PasswordProfile = New-Object -TypeName Microsoft.Open.AzureAD.Model.PasswordProfile
+$PasswordProfile.Password = &quot;PASSWORD-HERE&quot;
+#Create the new Azure AD User
+New-AzureADUser -DisplayName &quot;Service Account – PAM&quot; -PasswordProfile $PasswordProfile -UserPrincipalName &quot;ServiceAccount-PAM@contoso.onmicrosoft.com&quot; -AccountEnabled $true -MailNickName &quot;ServiceAccount-PAM&quot;</code></pre><h3 id="f62970c0-fbda-4136-a124-1a51a6bca02d" class="">Creating the Azure AD Groups</h3><p id="e0cfc6b9-4b13-4444-8834-37108429296e" class="">You&#x27;ve already created the on-prem AD groups and now it&#x27;s time to create the Azure AD groups. These groups will temporarily hold the approved accounts before syncing them to the local nested AD groups.</p><p id="ff511067-35f5-4412-804a-502f8cdcf75e" class="">Go ahead and create three Azure AD groups corresponding to the on-prem AD groups created earlier called <em>Security Group - Pending Domain Admin Accounts, Security Group - Pending Enterprise Admin Accounts</em> and <em>Security Group - Pending Schema Admin Accounts</em>.</p><p id="a8216907-bbf5-4b59-8ff1-b2f0fa2191c6" class="">Run the following PowerShell code snippet to take care of creating the groups for you. This PowerShell script also sets the Azure AD user account created earlier as <em>Owner</em>.</p><pre id="7fad7ec6-e18a-4565-97a5-d4be7eb751fc" class="code"><code>#Prompt for your Azure AD / Office 365 Admin credentials, then connect to AzureAD
+$Creds = Get-Credential
+Connect-AzureAD -Credential $Creds
+#Specify the Service Account you created from the previous step
+$ServiceAccount = Get-AzureADUser -SearchString &quot;ServiceAccount-PAM&quot;
+#Specify groups which need to be created 
+  $groupNames = &quot;Security Group - Pending Domain Admin Accounts&quot;,&quot;Security Group - Pending Enterprise Admin Accounts&quot;,&quot;Security Group - Pending Schema Admin Accounts&quot; 
+#Lets use ForEach to create the groups 
+  foreach ($name in $groupNames) { 
+    #Create the new security group
+    $AADGroup = New-AzureADGroup -DisplayName $name -MailEnabled $false -SecurityEnabled $true -MailNickName &quot;NotSet&quot; -Description &quot;Used for elevating access temporarily for AD roles&quot;
+    #Add the group owner
+    Add-AzureADGroupOwner -ObjectId $AADGroup.ObjectID -RefObjectId $ServiceAccount.ObjectID
+    #Confirm action so you can record the ObjectID as well
+    Get-AzureADGroup -ObjectId $AADGroup.ObjectID | Select ObjectID,DisplayName
+  }</code></pre><p id="3d8d4269-3311-4db0-809d-6870130b4edb" class="">If all goes well,  you should see one object returned for each created user.</p><figure id="43df40b4-bac9-4a46-9a3f-af3fd8a5a013" class="image"><a href="Automating%2071cd4/Untitled.png"><img style="width:896px" src="Automating%2071cd4/Untitled.png"/></a><figcaption>Successful Azure AD user creation</figcaption></figure><figure class="block-color-gray_background callout" style="white-space:pre-wrap;display:flex" id="38227af7-e193-4486-9041-6793dc7e6979"><div style="font-size:1.5em"><span class="icon">💡</span></div><div style="width:100%"><em><mark class="highlight-red">IMPORTANT:</mark></em><em> </em><em>Take note of the Object IDs</em><em> in the above screenshot, as shown after you ran the script – you will need them for them in the Power Automate </em><em>Flow</em><em> section. If you missed them, you can always find them at the </em><a href="https://aad.portal.azure.com"><em>Azure AD portal</em></a><em> under the Group section.</em></div></figure><p id="ba8024ea-18d2-487a-8186-de7ae1808c9d" class="">All of the preparation is done, it&#x27;s time to create our solution!</p><h2 id="e655a2ea-97f7-4044-866e-cc0f6b606f49" class="">Creating the SharePoint Site</h2><p id="b96991e4-c4c2-4461-a8ea-33cbd8e2e821" class="">Once you have the groups and user account all set up, you now need to build a front-end for a requestor to request temporary access. In this guide, we&#x27;re using a SharePoint site; more specifically, a SharePoint List. This SharePoint site is where you will direct requestors to request access.</p><p id="e177eacc-cb9c-4903-8fa0-5a932dd27ee5" class="">If you already have a SharePoint Site you&#x27;d like to use, feel free to skip to <strong>Importing the SharePoint List</strong> section. However, be warned that all future steps in this guide will assume you&#x27;re using the SharePoint site built in this section.</p><ol type="1" id="3b9a821d-ba32-40d7-bcb2-e4901abdffed" class="numbered-list" start="1"><li>First, log in to your SharePoint Admin Center (typically at <em>htps://YourO365Tenant</em><em>-admin.sharepoint.com</em>)<em>.</em></li></ol><ol type="1" id="0485cd04-4930-4ed8-aabe-b604418e43cf" class="numbered-list" start="2"><li>Once you are logged in, click on <strong>Site Collections</strong><strong> —&gt;</strong> <strong>New —</strong>&gt; <strong>Private Site Collection.</strong></li></ol><ol type="1" id="da59b856-b842-4082-85c2-2d5e6e7663ad" class="numbered-list" start="3"><li>Now set the following attributes in the screenshot below to set up the new SharePoint site.<figure id="a57b11c1-abc9-4cfd-b240-f48582b7c7c4" class="image"><a href="Automating%2071cd4/msedge_KLXB5fjyeR.png"><img style="width:576px" src="Automating%2071cd4/msedge_KLXB5fjyeR.png"/></a><figcaption>Creating a new SharePoint site collection</figcaption></figure></li></ol><ol type="1" id="f6876c26-89a4-42de-8429-04602bc05db8" class="numbered-list" start="4"><li>Click <strong>OK </strong>then wait for the SharePoint site to provision. </li></ol><p id="6a1384c4-d6d8-4dde-a54b-2500fe4c5d93" class="">Once the SharePoint site provisioned, you&#x27;re then ready to import the SharePoint List.</p><h2 id="975df1e1-59e4-429d-a6bc-d7762bcdabff" class="">Importing the SharePoint List</h2><p id="45d8cad5-d093-42c9-ae8e-bbfa7c32bb26" class="">Once the SharePoint site is created, you&#x27;ll then need to create a SharePoint List. The SharePoint List will store all of the requests and to show the details of each request. Follow the following steps to create the SharePoint List.</p><ol type="1" id="4ecbff13-668b-451f-ac19-d24a03a60151" class="numbered-list" start="1"><li>Open the SharePoint site you are using for the front-end previously created at the URL <em>https://contoso.sharepoint.com/sites/AD-PAM</em>.</li></ol><ol type="1" id="c08f2345-61c8-4527-80f0-c10ee4a3a58f" class="numbered-list" start="2"><li>On the SharePoint site, click the gear or settings icon on the top right corner and click <strong>Site Contents —&gt; Site Settings. </strong></li></ol><ol type="1" id="7d9e5d87-0e76-48bc-99e8-54b1e4eca692" class="numbered-list" start="3"><li>Under <strong>Web Designer Galleries</strong>, click <strong>List Templates</strong> and then on <strong>File —</strong>&gt; <strong>Upload.</strong></li></ol><ol type="1" id="d0787b55-b22c-491f-8745-a960a6028682" class="numbered-list" start="4"><li>In the <strong>Upload</strong> dialog box, upload the SharePoint List template (<em>AD Admin PAM.stp</em>) in <a href="https://www.notion.so/Automating-Temporary-Access-Approval-with-SharePoint-and-Power-Automate-30002654811849dd91fc5d2378ee3b82">this guide&#x27;s GitHub repo</a>.</li></ol><ol type="1" id="54e031c5-2a13-45b4-bf35-a7ff713363d8" class="numbered-list" start="5"><li>After uploading the file, click the gear icon again and go back to <strong>Site Contents. </strong></li></ol><ol type="1" id="358ae8fa-b272-4f6b-9e3f-90b01aa64111" class="numbered-list" start="6"><li>Once on the <strong>Site Contents</strong> page, click <strong>New —</strong>&gt; <strong>App. </strong>On the <strong>Your Apps</strong> page: type &quot;<strong>AD&quot; </strong>on the search box and click <strong>AD Admin</strong>. </li></ol><ol type="1" id="9fbcc363-6050-4b05-8d8a-4ace9cf9c33d" class="numbered-list" start="7"><li>Name the SharePoint List (i.e. <em>AD Admin Request</em>) then click <strong>Create. </strong>You have now added the SharePoint list!</li></ol><p id="167de388-ec9e-43c6-8146-00a9c2d5ee46" class="">If you need visual instruction on the steps above, check out the process below.</p><figure id="1f100eb6-c216-40fd-a0a2-8b183dcca9b0" class="image"><a href="Automating%2071cd4/SharePoint_List_Template.gif"><img style="width:576px" src="Automating%2071cd4/SharePoint_List_Template.gif"/></a><figcaption>SharePoint Online Upload List</figcaption></figure><figure id="76a61937-0683-4be7-a9ca-6886c50fea44" class="image"><a href="Automating%2071cd4/SharePoint_List_Create.gif"><img style="width:600px" src="Automating%2071cd4/SharePoint_List_Create.gif"/></a><figcaption>SharePoint Online New List from Template</figcaption></figure><figure class="block-color-gray_background callout" style="white-space:pre-wrap;display:flex" id="90f46592-3a88-44f3-a5b8-48b8f93e883e"><div style="font-size:1.5em"><span class="icon">💡</span></div><div style="width:100%"><em>Be sure to note the URL since this is where your admins will request their AD Admin access (i.e contoso.sharepoint.com/sites/AD-PAM). </em></div></figure><h2 id="3491df75-af56-40e2-a07b-8ded0aae45fc" class="">Setting up Microsoft Power Automate</h2><p id="27d14a18-9f4d-4f7f-95a3-d2d239a7d87e" class="">You&#x27;ve now got through all of the boring set up work; the real magic starts here, setting up Power Automate to automate the whole process!</p><figure class="block-color-gray_background callout" style="white-space:pre-wrap;display:flex" id="f490ee36-8b33-4f76-9ed3-7a2209f0d076"><div style="font-size:1.5em"><span class="icon">💡</span></div><div style="width:100%"><em>Did you know you can approve requests sent via Power Automate in Outlook or the Power Automate app on your mobile phone?</em></div></figure><p id="f0c8ba91-7139-4284-a20e-e58f6d022314" class="">To make the process of setting up Power Automate as easy as possible, you have a Power Automate template file in the associated <a href="https://www.notion.so/Automating-Temporary-Access-Approval-with-SharePoint-and-Power-Automate-30002654811849dd91fc5d2378ee3b82">GitHub repo files</a> called <em>On-premADPrivilegeAccessRequestFlow.zip</em>. The first step in setting up Power Automate is to upload the template which will create the Power Automate flow.</p><ol type="1" id="8a075490-d0f9-41fa-a5f8-14d5e32b630b" class="numbered-list" start="1"><li>Login to <a href="http://flow.microsoft.com/">Power Automate</a>.</li></ol><ol type="1" id="146ddcb5-a6d2-4eb7-9529-da88a84f310d" class="numbered-list" start="2"><li>Click on <strong>My Flows.</strong></li></ol><ol type="1" id="39931e81-d156-401c-80f3-f8ca00f4ca2d" class="numbered-list" start="3"><li>On the <strong>My Flows</strong> page, click <strong>Import.</strong><figure id="6341f4d5-2801-490e-99e9-a239e77396a8" class="image"><a href="Automating%2071cd4/ApplicationFrameHost_VukkYNZJCc.png"><img style="width:336px" src="Automating%2071cd4/ApplicationFrameHost_VukkYNZJCc.png"/></a><figcaption>PowerAutomate Flow Import</figcaption></figure></li></ol><ol type="1" id="646093b2-de8f-4642-92ac-d4d3d421cc93" class="numbered-list" start="4"><li>Locate and upload the Power Automate Flow template file from the<strong> </strong><a href="https://www.notion.so/Automating-Temporary-Access-Approval-with-SharePoint-and-Power-Automate-30002654811849dd91fc5d2378ee3b82">GitHub repo files</a> called <em>On-premADPrivilegeAccessRequestFlow.zip.</em></li></ol><ol type="1" id="2a29f119-be11-479c-b1a3-64c34ab8d28d" class="numbered-list" start="5"><li>After uploading, it is time to set up the connections. Click <strong>Select during import</strong>. If you haven&#x27;t setup previous Mail connection using Power Automate, it will show blank as shown in the GIF below.</li></ol><ol type="1" id="634357c1-120c-4897-9cfb-1da0ad57f095" class="numbered-list" start="6"><li>To create a new Mail connection, click <strong>Create new</strong> and you will see a new window to configure the connection. </li></ol><ol type="1" id="0bd3f03f-6918-4a2f-827e-8b620482b99d" class="numbered-list" start="7"><li>Click <strong>New Connection, </strong>scroll through the list, and look for <strong>Mail. </strong></li></ol><ol type="1" id="22e195da-f476-48a8-99e6-fd795564521f" class="numbered-list" start="8"><li>When you find the <strong>Mail</strong> connection, click on it and then on <strong>Accept and create</strong> as shown below.<figure id="4515e14c-7bda-40de-8ab3-b6084cec4b9d" class="image"><a href="Automating%2071cd4/Untitled%201.png"><img style="width:1497px" src="Automating%2071cd4/Untitled%201.png"/></a><figcaption>PowerAutomate Flow Mail Connector</figcaption></figure><p id="3f6e7a8e-1e0d-4e41-b1a9-105ddfdafcb3" class="">If you&#x27;d like a visual representation of the above steps, check out the animated GIF below.</p><figure id="06a3acf6-2250-49b4-958f-7818a81b71b5" class="image"><a href="Automating%2071cd4/PowerAutomate_Mail_Connection.gif"><img style="width:600px" src="Automating%2071cd4/PowerAutomate_Mail_Connection.gif"/></a><figcaption>PowerAutomate New Connection</figcaption></figure></li></ol><ol type="1" id="81f11e85-a492-4f6b-9f5a-ab8f74f1dc37" class="numbered-list" start="9"><li>Now repeat steps 5-8, for each connection type defined in the template; Azure AD, SharePoint, and Approvals connecting each of your connections with the template<strong>.</strong></li></ol><ol type="1" id="6692bb82-7f41-4c25-a34c-3c9865c6e49f" class="numbered-list" start="10"><li>After you configured each connection, click <strong>Import</strong> at the bottom of the page as seen in the following screenshot.<figure id="4d804dad-fef0-422f-9723-ad5f064fc8a1" class="image"><a href="Automating%2071cd4/ApplicationFrameHost_8ggNaTdqZs.png"><img style="width:1063px" src="Automating%2071cd4/ApplicationFrameHost_8ggNaTdqZs.png"/></a><figcaption>PowerAutomate Flow Import Settings</figcaption></figure></li></ol><ol type="1" id="19e89fd6-50bf-4bbd-97ab-4b4c2a19b303" class="numbered-list" start="11"><li>Now go back to <strong>My Flows</strong>. The flow the template creates should be listed now. If not, just refresh the screen.</li></ol><ol type="1" id="0b2051da-270f-47e8-a657-1afebc733b67" class="numbered-list" start="12"><li>Click on <strong>On-prem AD Privilege Access Request Flow</strong> to open the flow.<figure id="610d6f6e-dd05-4058-a858-9d81544c6e69" class="image"><a href="Automating%2071cd4/firefox_ZhMJpF24Wp.png"><img style="width:917px" src="Automating%2071cd4/firefox_ZhMJpF24Wp.png"/></a><figcaption>PowerAutomate Flow AD-PAM</figcaption></figure></li></ol><ol type="1" id="c29a5c7a-2ef8-4bd6-8ccf-5ea82233000a" class="numbered-list" start="13"><li>Click <strong>Edit</strong> to configure your environment settings<strong>.</strong></li></ol><h3 id="669dac1b-6fa0-4674-8f12-a0c70d61ddec" class="">Configuring Environment Settings</h3><p id="3adb58b4-921e-4e2b-8076-be9e8a6e5dd7" class="">Once you&#x27;ve imported the template and set up the connections, you now need to link the SharePoint site and Azure AD user created earlier to the flow. To do that:</p><ol type="1" id="98411367-32fe-4c19-802c-19a394bd5da9" class="numbered-list" start="1"><li>Confirm your Azure AD service account (ServiceAccount-PAM) is being used under <strong>My connections </strong>labeled #1 and #2 in the screenshot below.</li></ol><ol type="1" id="ce3a2841-727d-4811-a79a-1025d67a31d3" class="numbered-list" start="2"><li>Provide the SharePoint site and list created earlier as a URL under <strong>When a new item is created</strong> action (#3 in the screenshot.</li></ol><ol type="1" id="65a82794-b907-4020-957d-c483ba9cee27" class="numbered-list" start="3"><li>Confirm your Azure AD service account (ServiceAccount-PAM) by clicking on the ellipses in <strong>Get file metadata</strong> action (#4 in the screenshot) and then providing the SharePoint site URL again as labeled #5 below.<figure id="f31ef6d8-5e69-4bc1-9cf5-bb422138dc30" class="image"><a href="Automating%2071cd4/Untitled%202.png"><img style="width:1016px" src="Automating%2071cd4/Untitled%202.png"/></a><figcaption>PowerAutomate Flow AD-PAM Settings</figcaption></figure></li></ol><ol type="1" id="5391487e-00a5-4eb0-8833-7ece1cfe904a" class="numbered-list" start="4"><li>Click on the <strong>Switch</strong><strong> </strong>action as shown above.</li></ol><ol type="1" id="c20f4a1c-bbc2-436a-9ecf-3b21ad68928b" class="numbered-list" start="5"><li>Click on the <strong>Domain Administrator </strong>item<strong>.</strong></li></ol><ol type="1" id="6b1ace78-12b5-4ef7-892a-17489f11a62a" class="numbered-list" start="6"><li>Click the <strong>Start</strong><strong> and wait for approval </strong>process and set your approval template and approvers as shown below.<figure class="block-color-gray_background callout" style="white-space:pre-wrap;display:flex" id="96142f2e-0b96-4b75-a733-14ae842a8b35"><div style="font-size:1.5em"><span class="icon">💡</span></div><div style="width:100%"><em>NOTE: It is a good idea that you have approvers that covers the full shift or 24/7. You never know when someone would need elevated admin roles.</em></div></figure><figure id="8e2fe719-9a59-4e72-a27e-7346a6df290c" class="image"><a href="Automating%2071cd4/firefox_bcwJ1sy2kw.png"><img style="width:1898px" src="Automating%2071cd4/firefox_bcwJ1sy2kw.png"/></a><figcaption>PowerAutomate Flow AD-PAM Settings 2</figcaption></figure><p id="d1f1d220-f220-494c-8eea-f24040e5d334" class="">
+</p></li></ol><ol type="1" id="2ee20b44-bef4-4787-a752-1dbdbb18ee6c" class="numbered-list" start="7"><li>Click on the <strong>Condition</strong><strong> </strong>branch.</li></ol><ol type="1" id="7dca6b8c-32ba-41c2-96f8-dfb5ff64cabc" class="numbered-list" start="8"><li>Expand the <strong>Yes </strong>section flow. This is the section where you can set up your email template notification if approved. More importantly, it is where you will set the Object ID of the <strong>Security Group - Pending Domain Administrator</strong> Azure AD group.<p id="78090e3b-6b5e-4f6b-817f-f7a403975658" class="">Ensure the <strong>Add user to group - Automated Domain Administrator</strong> section looks like the below screenshot.</p><figure id="e5e1dcfe-f9d9-4f57-a354-25b59be67a27" class="image"><a href="Automating%2071cd4/Untitled%203.png"><img style="width:528px" src="Automating%2071cd4/Untitled%203.png"/></a><figcaption>PowerAutomate Flow AD-PAM Settings 3</figcaption></figure></li></ol><ol type="1" id="311b3ac2-08ff-40a4-880f-0c129dcb34a4" class="numbered-list" start="9"><li>Confirm the Azure AD service account is selected again as your connector as shown in the following screenshot.<figure id="df5cf657-cf2f-499a-a6cb-b91bd30263c5" class="image"><a href="Automating%2071cd4/Untitled%204.png"><img style="width:720px" src="Automating%2071cd4/Untitled%204.png"/></a><figcaption>PowerAutomate Flow AD-PAM Settings 4</figcaption></figure></li></ol><ol type="1" id="0a623f43-279c-44fe-9103-b428df5c45e8" class="numbered-list" start="10"><li>Repeat steps eight and nine for <strong>Enterprise Administrator </strong>tree and <strong>Schema Administrator </strong>tree to set each sections&#x27; <strong>approvers </strong>and <strong>Azure AD Group ObjectID&#x27;s </strong>so they function as intended.</li></ol><ol type="1" id="904e9aa9-e0be-44a4-bcfd-37a599e084b9" class="numbered-list" start="11"><li>Once you are done with all three roles, click <strong>Save.</strong></li></ol><h3 id="1bb401b2-a5ca-4606-89ce-ee975d7e59ce" class="">Testing the Flow</h3><p id="d17ed2d7-e1fd-48f9-86e3-9bf492603717" class="">You now have everything set up and ready to go. It&#x27;s time to test this! The test will confirm the functionality of the request and approval section of the solution without actually doing any actions.</p><figure class="block-color-gray_background callout" style="white-space:pre-wrap;display:flex" id="7cd944f5-7520-452e-aa38-0be87aec783d"><div style="font-size:1.5em"><span class="icon">💡</span></div><div style="width:100%"><em>This will be a good time to review the email templates in the previous steps within the Flow section to confirm it is what you would like to use. </em></div></figure><ol type="1" id="ba9979be-2012-4108-9536-ffee670d6f50" class="numbered-list" start="1"><li>Open the SharePoint site you are using for the front-end previously created at the URL <em>https://contoso.sharepoint.com/sites/AD-PAM</em>.</li></ol><ol type="1" id="9873567c-e1da-41f5-a82c-85555cf3ec3f" class="numbered-list" start="2"><li>Click <strong>New</strong>, then fill out the form fields and click <strong>Save </strong>as seen on the screenshot below.<figure id="96759445-1132-4356-bac7-a96f617425c6" class="image"><a href="Automating%2071cd4/RemoteDesktopManagerFree_YK3uWk71Q8.png"><img style="width:1245px" src="Automating%2071cd4/RemoteDesktopManagerFree_YK3uWk71Q8.png"/></a><figcaption>SharePoint New Request</figcaption></figure></li></ol><ol type="1" id="c2c76ada-3f0b-46af-aa33-3a618b525269" class="numbered-list" start="3"><li>Here&#x27;s a screenshot when it is all working in SharePoint and PowerAutomate. <figure id="45df22ea-0404-471b-9d0c-08c8e707d642" class="image"><a href="Automating%2071cd4/ApplicationFrameHost_QDg776Bfw1.png"><img style="width:1307px" src="Automating%2071cd4/ApplicationFrameHost_QDg776Bfw1.png"/></a><figcaption>SharePoint List Screenshot - processed request.</figcaption></figure><figure id="b9b6ae2b-6a4b-438f-9a2e-43d4a93f0e24" class="image"><a href="Automating%2071cd4/ApplicationFrameHost_KLgoEYwv3l.png"><img style="width:1088px" src="Automating%2071cd4/ApplicationFrameHost_KLgoEYwv3l.png"/></a><figcaption>Power Automate Screenshot - processed request.</figcaption></figure></li></ol><p id="efdc25a4-7b0a-4663-88ac-bac26ae68585" class="">Once you are satisfied with the flow and email templates, move on to the next section to configure and schedule the PowerShell scripts!</p><h2 id="bbdea51a-c4ec-4e45-8948-889ead0a2c6e" class="">Setting up the PowerShell Script</h2><p id="42db5900-61dd-4b88-af7e-8894b6c14353" class="">Now that you have the &quot;request and approval&quot; process going, it is time to schedule the &quot;actions&quot;.</p><ol type="1" id="1ceb9242-265b-46cd-b65a-4b0c975cf2d2" class="numbered-list" start="1"><li>Pick an AD-joined server or PC to run the PowerShell scripts runs. It doesn&#x27;t matter where they run but you do need to ensure this machine will be up 24/7 as it will be scheduled to run on a frequent basis.</li></ol><ol type="1" id="2e95c68b-adb2-47d1-9a68-e1bbcd53ec0e" class="numbered-list" start="2"><li>Go to your server or workstation where the script will be hosted and first confirm it is able to connect to a domain controller via PowerShell. If you have not set this up before, follow this <a href="https://adamtheautomator.com/install-powershell-active-directory-module/">great article by Stuart Squibb</a><a href="https://adamtheautomator.com/install-powershell-active-directory-module/">.</a></li></ol><ol type="1" id="cf7f5ddf-2508-4b27-9f7b-2e2ab3f01e98" class="numbered-list" start="3"><li>Open up the AD-PAM-Add-Admins.ps1 script found in the <a href="https://www.notion.so/Automating-Temporary-Access-Approval-with-SharePoint-and-Power-Automate-30002654811849dd91fc5d2378ee3b82">GitHub repo</a>. This script will be the one that adds the user to the nested group essentially elevating the access of the user.</li></ol><ol type="1" id="915efda7-8d34-4c79-8bf8-e08ab8cb9bd0" class="numbered-list" start="4"><li>Review the <code>Script Variables</code> section as indicated below. Set your environment variables as well the as the Azure AD service account credentials to be used.<pre id="56dfb1cc-a002-4114-89c4-f119f0cb1092" class="code"><code>####################
+# Script Variables #
+####################
+#Email Settings
+  $SMTPServer = &quot;contoso-com.mail.protection.outlook.com&quot; #DirectSend or your mail relay server.
+  $FromEmail = &quot;IT@contoso.com&quot;
+#Group Information
+  $hashArr = @(
+    @{
+    AADSecurityGroupObjectID = &#x27;OBJECT-ID-OF-YOUR-AAD-GROUP&#x27;  #Object ID of your Azure AD Group
+    NestedADSecurityGroupName = &#x27;Automated Domain Admins&#x27;     #The name you use or called your destination / local AD security groups
+    ElevatedAdminGroupName = &#x27;Domain Admins&#x27;                  #This is just use for the email body
+    },
+    @{
+    AADSecurityGroupObjectID = &#x27;OBJECT-ID-OF-YOUR-AAD-GROUP&#x27;
+    NestedADSecurityGroupName = &#x27;Automated Enterprise Admins&#x27;
+    ElevatedAdminGroupName = &#x27;Enterprise Admins&#x27;
+    },
+    @{
+    AADSecurityGroupObjectID = &#x27;OBJECT-ID-OF-YOUR-AAD-GROUP&#x27;
+    NestedADSecurityGroupName = &#x27;Automated Schema Admins&#x27;
+    ElevatedAdminGroupName = &#x27;Schema Admins&#x27;
+    }
+)</code></pre></li></ol><ol type="1" id="51929b4c-8942-497d-8f4d-dddf8541da47" class="numbered-list" start="5"><li>Open up the second script called <em>AD-PAM-Clear-AdminGroups.ps1</em>. This script will clear the members of the nested group, effectively removing the elevated access.</li></ol><ol type="1" id="030692b7-3b13-4b19-b552-60dbe9c7f460" class="numbered-list" start="6"><li>Review the <code>Script Variables</code> section as indicated below and set your environment variables. <pre id="93cdeef5-eb3c-4feb-a4b5-168cb5e079c0" class="code"><code>####################
+# Script Variables #
+####################
+#Email Settings
+  $SMTPServer = &quot;contoso-com.mail.protection.outlook.com&quot; #DirectSend or your mail relay server.
+  $FromEmail = &quot;IT@contoso.com&quot;
+# If you used the CSV to add, you can reference it hear a well and use the same CSV source, since we only have 3, I&#x27;ve specificed them here instead of creating another file.
+$NestedADSecurityGroupNames = &quot;Automated Enterprise Admins&quot;, &quot;Automated Schema Admins&quot;, &quot;Automated Domain Admins&quot;</code></pre></li></ol><h2 id="8cd0c037-8606-4bf7-8864-ba2bcc183d66" class="">Scheduling the Group Checks</h2><p id="d7798acd-98c7-4793-89ab-aa4257e7ad4c" class="">Now that you&#x27;ve prepared the script to run within your environment, it is time to move to the next section and use Task Scheduler to set the script to run.</p><p id="b8f4738c-0eca-441f-8fea-0bb3fe8c92a1" class="">The first script will need to constantly check if someone has been added to the pending Azure AD security groups. These groups will hold the approved users temporarily. If they have a member, then it will run the script and add those members to the nested admin groups, like Domain Admins, effectively elevating the user account. </p><p id="aa0804f6-8c39-47e8-b33e-849445a30f21" class="">To set up the scheduled task:</p><ol type="1" id="2263749a-93ad-498f-a816-12dc1663b293" class="numbered-list" start="1"><li>Open Task Scheduler</li></ol><ol type="1" id="9a70eb5a-57ab-40f4-b3c8-50f5c887ff63" class="numbered-list" start="2"><li>Click <strong>Create a Task</strong> and name it <em>AD-PAM Add Admins</em> with a description.</li></ol><ol type="1" id="acb49300-fbd6-43a0-bb29-99ff80d7696e" class="numbered-list" start="3"><li>Go to the <strong>Trigger </strong>tab and click <strong>New</strong>.</li></ol><ol type="1" id="63ab50e8-6302-4c4c-af07-2b50c636c9c3" class="numbered-list" start="4"><li>Select <strong>Daily </strong>(set your preferred start time)</li></ol><ol type="1" id="a3be8611-f3b1-4906-8287-1f6532ceb533" class="numbered-list" start="5"><li>Check <strong>Repeat task every: 5 Minutes. </strong>Click <strong>OK. </strong></li></ol><ol type="1" id="664096c2-9f1b-42cf-898a-e11b13f1e265" class="numbered-list" start="6"><li>Go the the <strong>Actions </strong>tab, click <strong>New </strong></li></ol><ol type="1" id="e4c99a73-e593-4e36-888d-881547db204a" class="numbered-list" start="7"><li>Type <strong>powershell.exe </strong>for the <strong>Program/Script</strong>.</li></ol><ol type="1" id="000b0b9a-b61d-428f-8b61-5251910acb19" class="numbered-list" start="8"><li>Set the <strong>Add arguments </strong>box to -File &quot;C:\YourScriptDirectory\AD-PAM-Add-Admins.ps1&quot;. This points PowerShell to the script covered earlier.</li></ol><ol type="1" id="2bd266e2-68d1-4947-a831-1cb0d888cc4c" class="numbered-list" start="9"><li>Go back to <strong>General </strong>tab and click on the <strong>Change User or Group </strong>button.</li></ol><ol type="1" id="554e51b3-384f-44f6-ad83-2598eb27b833" class="numbered-list" start="10"><li>Choose the <strong>gMSA service account</strong> option making sure to select <strong>Run whether user is logged in or not.</strong></li></ol><ol type="1" id="401844a8-0dff-4671-9536-97cb18ef7b80" class="numbered-list" start="11"><li>Click <strong>OK </strong>to exit</li></ol><figure id="b429ed2a-b46c-477a-9b3a-805041b78f33" class="image"><a href="Automating%2071cd4/RemoteDesktopManagerFree_pbruGqAgoy.png"><img style="width:624px" src="Automating%2071cd4/RemoteDesktopManagerFree_pbruGqAgoy.png"/></a><figcaption>Task Scheduler Script1</figcaption></figure><h2 id="591b6bab-1ea8-4a2b-857c-0bc3f9485b74" class="">Scheduling to Clear the Elevated Group Members</h2><p id="e5ac5790-8890-4aba-9bf2-c5148164d973" class="">Now you are ready for the last step! You have set the script to add the user to the nested admin groups, next you are going to schedule when to clear them out of the group to revoke the elevated access.</p><p id="53f13b44-c527-4b82-b3cb-57818bf11a62" class="">This scheduled task needs to run daily, ideally when work is over. You can also schedule it twice a day at 7 AM and 7 PM if you&#x27;d like. That would mean admins can only have elevated access for a maximum of 12 hours. This is the time a script will run to actually remove the elevated roles from the user, effectively demoting their user accounts with no special permissions.</p><p id="8826f4bd-70d1-4c2f-8d92-8732936364c3" class="">To create the scheduled task, follow the same procedure as you did to create the scheduled task for the other script. Although this time, you can modify the daily trigger if you&#x27;d like to twice a day. Also, be sure to change the arguments to point to the path of the other script named <em>AD-PAM-Clear-AdminGroups.ps1</em>.</p><h2 id="20a71fe1-dc0d-4190-bf20-2fde6caaee01" class="">Testing out the Process</h2><p id="cff2af0a-0184-4ac6-83ad-5d2083bb39cc" class="">You&#x27;re all set! Go ahead and give it a shot to test the process by submitting a request through the SharePoint site you created earlier (i.e. <em>https://contoso.sharepoint.com/sites/AD-PAM</em>). To run through a test, check out the below video.</p><figure id="e23c05cd-baaa-45e7-a58a-9cdcfd032bba"><div class="source"><a href="https://youtu.be/Y1MBIMagbZc">https://youtu.be/Y1MBIMagbZc</a></div><figcaption>Overview of User Experience and Sample Emails</figcaption></figure><p id="9dbc6a26-8722-476c-8ed7-ee4e0b517d82" class="">If all was configured correctly, you should see the following happen:</p><ol type="1" id="61c42fe1-e53d-4c0d-8990-799df53614ca" class="numbered-list" start="1"><li>Approver(s) will receive an email to approve the request.</li></ol><ol type="1" id="83a30a72-6a56-48bb-bfe7-b32f26c2cc77" class="numbered-list" start="2"><li>Requester will get a notification of approval (or denial).</li></ol><ol type="1" id="a00d9f12-3079-4bbd-ad2c-828090bc9940" class="numbered-list" start="3"><li>If approved, a confirmation email to the requester, with their manager copied.</li></ol><ol type="1" id="592f5fd6-eb4d-4cd0-b7d6-939efe1e514c" class="numbered-list" start="4"><li>Then you should be able to perform elevated task using the role requested!</li></ol><ol type="1" id="dda1813d-46c0-40b3-b025-cf4d2def4662" class="numbered-list" start="5"><li>Depending on the schedule of the last script - you&#x27;ll get a confirmation when it revokes your access as an admin.</li></ol><h2 id="aacafc64-fefe-458a-adce-72d982558310" class="">Summary</h2><p id="34c72135-f99e-4a28-9181-b45a46cd2349" class="">Going through this guide, you learned how to utilize Microsoft Power Automate, SharePoint and PowerShell to perform an elevated access approval process for a local Active Directory environment. Using the same concepts you used for the three initial groups, you can add additional groups like DNSAdmins, maybe even Local Admins Groups or a group that has access to sensitive files!</p><p id="b7d32cdb-2f5b-42bc-93f2-d6ab6ef2d836" class="">There you have it - a simple way of adhering to IT best practices by setting up an elevated access approval for super admin groups in your Active Directory environment. By doing this process, you have made your environment a little safer, especially if an admin account was somehow compromised. </p></div></article></body></html>
